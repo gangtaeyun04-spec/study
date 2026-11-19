@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f6fa">
+<meta name="description" content="나만의 공부 캘린더와 과목별 진도 관리">
+<link rel="manifest" href="manifest.webmanifest">
+<title>공부 캘린더</title>
+<style>
+:root{--bg:#f4f5f9;--card:#fff;--ink:#202333;--muted:#85899a;--line:#e9eaf0;--accent:#5967d8;--soft:#eef0ff;--green:#20a477;--red:#e46e72;--shadow:0 5px 22px #27305b0c}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;padding-bottom:40px}
+header{position:sticky;top:0;z-index:5;background:#f4f5f9ed;backdrop-filter:blur(12px);padding:16px 18px 10px;border-bottom:1px solid #e8e9ef}
+.top{display:flex;justify-content:space-between;align-items:center;max-width:850px;margin:auto}.brand{font-weight:850;font-size:21px;letter-spacing:-.7px}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+main{max-width:850px;margin:auto;padding:16px 14px;display:grid;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow)}
+.section-title{font-weight:800;font-size:17px;letter-spacing:-.4px;margin:0 0 13px}.muted{color:var(--muted);font-size:13px}.monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.monthbar strong{font-size:19px}.iconbtn{border:0;background:#f1f2f7;border-radius:11px;width:34px;height:34px;font-size:18px;color:#555;cursor:pointer}
+.week,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}.week div{text-align:center;font-size:11px;color:var(--muted);padding:7px 0}.day{min-height:63px;border:1px solid transparent;border-radius:12px;background:#fff;padding:6px 3px;text-align:center;cursor:pointer;position:relative;color:var(--ink)}.day .num{font-size:13px;font-weight:650}.day.other{opacity:.28}.day.selected{background:var(--soft);border-color:#9ca5ff}.day.today .num{color:var(--accent)}.dots{display:flex;justify-content:center;gap:3px;margin-top:7px;min-height:6px}.dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}.dot.exam{background:var(--red)}.dot.study{background:var(--green)}
+.selected-date{display:flex;align-items:center;justify-content:space-between;margin:14px 0 9px}.selected-date strong{font-size:15px}.pill{font-size:11px;padding:4px 8px;border-radius:20px;background:#f1f2f7;color:#676b7b}
+label{font-size:13px;font-weight:650;display:block;margin:10px 0 6px}input,select,textarea{width:100%;border:1px solid #e2e4ec;border-radius:11px;padding:10px 11px;font:inherit;font-size:14px;background:#fff;color:var(--ink);outline:none}input:focus,select:focus,textarea:focus{border-color:#8993f1}button{font:inherit}.btn{border:0;border-radius:11px;padding:10px 13px;background:var(--accent);color:white;font-weight:700;font-size:13px;cursor:pointer}.btn.secondary{background:#eff0f6;color:#555b70}.btn.danger{background:#fff0f0;color:#c6535a}.btn.small{padding:7px 10px;font-size:12px}.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.row input,.row select{flex:1}.checks{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.checkchip{display:flex;align-items:center;gap:6px;background:#f6f7fb;padding:7px 10px;border-radius:10px;font-size:13px}.checkchip input{width:auto;margin:0;accent-color:var(--accent)}
+.subject-list{display:grid;gap:12px}.subject{border:1px solid var(--line);border-radius:15px;padding:13px}.subject-head{display:flex;justify-content:space-between;gap:8px;align-items:center}.subject-name{font-weight:800}.subject-meta{font-size:12px;color:var(--muted);margin-top:3px}.progress{height:9px;border-radius:20px;background:#eef0f4;overflow:hidden;margin:10px 0 6px}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#7885ed,#5b68d8);border-radius:20px}.unit{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-top:1px solid #f0f1f5;font-size:13px}.unit input{width:17px;height:17px;margin:1px 0 0;accent-color:var(--green)}.unit-text{flex:1}.unit.done .unit-text{text-decoration:line-through;color:#999}.unit small{display:block;color:var(--muted);margin-top:2px}.empty{padding:20px;text-align:center;color:var(--muted);font-size:13px;background:#fafbfe;border-radius:12px}
+.plan-day{padding:12px 0;border-top:1px solid var(--line)}.plan-day:first-child{border-top:0}.plan-date{font-weight:800;font-size:14px;margin-bottom:7px}.plan-item{display:flex;justify-content:space-between;gap:8px;font-size:13px;padding:5px 0}.plan-item span:last-child{color:var(--muted);white-space:nowrap}.notice{background:#fff8e8;color:#86631d;border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.5;margin-top:10px}
+footer{text-align:center;color:#9a9dad;font-size:11px;padding:5px 20px 25px}
+@media(min-width:680px){main{grid-template-columns:1.1fr .9fr}.calendar-card{grid-column:1}.daily-card{grid-column:2}.subjects-card,.plan-card{grid-column:1/-1}.day{min-height:72px}}
+</style>
+</head>
+<body>
+<header><div class="top"><div><div class="brand">공부 캘린더</div><div class="sub">기록하고, 진도를 확인하고, 계획하기</div></div><button class="btn secondary small" id="todayBtn">오늘로</button></div></header>
+<main>
+<section class="card calendar-card">
+ <div class="monthbar"><button class="iconbtn" id="prev">‹</button><strong id="monthLabel"></strong><button class="iconbtn" id="next">›</button></div>
+ <div class="week"><div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div></div>
+ <div class="days" id="calendar"></div>
+ <div class="selected-date"><strong id="dateLabel"></strong><span class="pill" id="datePill">선택한 날짜</span></div>
+ <div class="muted">날짜를 선택하면 아래에서 공부 기록과 시험 일정을 관리할 수 있어요.</div>
+</section>
+<section class="card daily-card">
+ <h2 class="section-title">하루 기록</h2>
+ <label>공부한 과목</label><div class="checks" id="studyChecks"></div>
+ <label for="examTitle">시험 일정 / 메모</label><input id="examTitle" placeholder="예: 수학·영어 중간고사">
+ <div class="row" style="margin-top:9px"><button class="btn" id="saveDay">기록 저장</button><button class="btn secondary" id="clearDay">선택 날짜 기록 지우기</button></div>
+ <div class="muted" style="margin-top:9px">시험 날짜는 과목별 진도 카드에서 설정할 수 있습니다.</div>
+</section>
+<section class="card subjects-card">
+ <h2 class="section-title">과목별 진도 관리</h2>
+ <div class="row"><input id="newSubject" placeholder="과목명 (예: 수학)"><button class="btn" id="addSubject">과목 추가</button></div>
+ <div class="subject-list" id="subjects" style="margin-top:14px"></div>
+</section>
+<section class="card plan-card">
+ <h2 class="section-title">공부 계획 만들기</h2>
+ <div class="muted">남은 단원, 과목별 시험일, 하루 공부 가능 시간과 취침 시간을 반영합니다. 단원 1개당 기본 2시간으로 계산합니다.</div>
+ <div class="row" style="margin-top:12px">
+  <div style="flex:1"><label for="wake">공부 시작 가능 시간</label><input type="time" id="wake" value="17:00"></div>
+  <div style="flex:1"><label for="sleep">취침 시간</label><input type="time" id="sleep" value="23:00"></div>
+ </div>
+ <div class="row"><div style="flex:1"><label for="hours">하루 공부 가능 시간</label><input type="number" id="hours" min="1" max="12" value="4"></div><div style="flex:1"><label for="breaks">단원 사이 휴식(분)</label><input type="number" id="breaks" min="0" max="60" value="15"></div></div>
+ <button class="btn" id="makePlan" style="width:100%;margin-top:12px">시험 일정에 맞춰 계획 생성</button>
+ <div id="planOutput" style="margin-top:13px"><div class="empty">과목과 단원, 시험 날짜를 입력한 뒤 계획을 만들어 보세요.</div></div>
+ <div class="notice">계획은 하루 공부 가능 시간과 취침 시간을 넘지 않도록 배치하는 참고용 일정입니다. 실제 학교 일정이나 수행평가가 있으면 직접 조정해 주세요.</div>
+</section>
+</main>
+<footer>입력한 정보는 이 기기의 브라우저에 저장됩니다. 브라우저 데이터 삭제 시 기록도 사라질 수 있어요.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const today=new Date(); today.setHours(0,0,0,0);
+const iso=d=>{let y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`};
+const parse=s=>{let [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+let data={subjects:[],days:{}};
+try{data=Object.assign(data,JSON.parse(localStorage.getItem('studyCalendarData')||'{}'))}catch(e){}
+let selected=iso(today), view=new Date(today.getFullYear(),today.getMonth(),1);
+function save(){localStorage.setItem('studyCalendarData',JSON.stringify(data))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function dayData(date){return data.days[date]||(data.days[date]={studied:[],exam:''})}
+function renderCalendar(){
+ $('monthLabel').textContent=`${view.getFullYear()}년 ${view.getMonth()+1}월`;
+ const first=new Date(view.getFullYear(),view.getMonth(),1), start=new Date(first);start.setDate(1-first.getDay());
+ let html='';
+ for(let i=0;i<42;i++){let d=new Date(start);d.setDate(start.getDate()+i);let key=iso(d),entry=data.days[key]||{},exam=!!entry.exam;
+ html+=`<button class="day ${d.getMonth()!==view.getMonth()?'other':''} ${key===selected?'selected':''} ${key===iso(today)?'today':''}" data-date="${key}"><div class="num">${d.getDate()}</div><div class="dots">${(entry.studied||[]).length?'<i class="dot study"></i>':''}${exam?'<i class="dot exam"></i>':''}</div></button>`}
+ $('calendar').innerHTML=html;
+ document.querySelectorAll('.day').forEach(b=>b.onclick=()=>{selected=b.dataset.date;renderAll()});
+ $('dateLabel').textContent=parse(selected).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+}
+function renderDaily(){
+ let entry=dayData(selected);
+ $('studyChecks').innerHTML=data.subjects.length?data.subjects.map(s=>`<label class="checkchip"><input type="checkbox" value="${s.id}" ${entry.studied.includes(s.id)?'checked':''}>${esc(s.name)}</label>`).join(''):'<span class="muted">먼저 과목을 추가해 주세요.</span>';
+ $('examTitle').value=entry.exam||'';
+}
+function renderSubjects(){
+ if(!data.subjects.length){$('subjects').innerHTML='<div class="empty">아직 등록된 과목이 없습니다. 위 입력창에서 과목을 추가해 주세요.</div>';return}
+ $('subjects').innerHTML=data.subjects.map(s=>{
+ let done=s.units.filter(u=>u.done).length,total=s.units.length,pct=total?Math.round(done/total*100):0;
+ let exam='시험일 미설정';
+ if(s.exam){
+   const diff=Math.round((parse(s.exam)-today)/86400000);
+   exam=diff>0?`D-${diff}`:diff===0?'D-DAY':`D+${Math.abs(diff)}`;
+ }
+ return `<article class="subject"><div class="subject-head"><div><div class="subject-name">${esc(s.name)}</div><div class="subject-meta">${exam} · ${done}/${total}단원 완료</div></div><button class="btn danger small" data-del-sub="${s.id}">삭제</button></div>
+ <label>시험 날짜</label><input type="date" data-exam="${s.id}" value="${s.exam||''}">
+ <div class="progress"><span style="width:${pct}%"></span></div><div class="muted">${pct}% 완료</div>
+ <div style="margin-top:11px"><div class="row"><input placeholder="대단원 또는 소단원 이름" data-unit-input="${s.id}"><button class="btn small" data-add-unit="${s.id}">단원 추가</button></div></div>
+ <div style="margin-top:8px">${s.units.length?s.units.map(u=>`<div class="unit ${u.done?'done':''}"><input type="checkbox" data-unit-check="${s.id}|${u.id}" ${u.done?'checked':''}><div class="unit-text">${esc(u.name)}${u.parent?`<small>${esc(u.parent)}</small>`:''}</div><button class="btn danger small" data-del-unit="${s.id}|${u.id}">삭제</button></div>`).join(''):'<div class="muted" style="padding:10px 0">등록된 단원이 없습니다.</div>'}</div></article>`
+ }).join('');
+ document.querySelectorAll('[data-del-sub]').forEach(b=>b.onclick=()=>{if(confirm('이 과목과 진도 기록을 삭제할까요?')){data.subjects=data.subjects.filter(s=>s.id!==b.dataset.delSub);Object.values(data.days).forEach(d=>d.studied=d.studied.filter(id=>id!==b.dataset.delSub));save();renderAll()}});
+ document.querySelectorAll('[data-exam]').forEach(i=>i.onchange=()=>{let s=data.subjects.find(x=>x.id===i.dataset.exam);s.exam=i.value;save();renderAll()});
+ document.querySelectorAll('[data-add-unit]').forEach(b=>b.onclick=()=>{let s=data.subjects.find(x=>x.id===b.dataset.addUnit),i=document.querySelector(`[data-unit-input="${s.id}"]`),name=i.value.trim();if(!name)return;s.units.push({id:crypto.randomUUID(),name,done:false});save();renderAll()});
+ document.querySelectorAll('[data-unit-check]').forEach(i=>i.onchange=()=>{let [sid,uid]=i.dataset.unitCheck.split('|'),u=data.subjects.find(s=>s.id===sid).units.find(u=>u.id===uid);u.done=i.checked;save();renderAll()});
+ document.querySelectorAll('[data-del-unit]').forEach(b=>b.onclick=()=>{let [sid,uid]=b.dataset.delUnit.split('|'),s=data.subjects.find(s=>s.id===sid);s.units=s.units.filter(u=>u.id!==uid);save();renderAll()});
+}
+function renderAll(){renderCalendar();renderDaily();renderSubjects()}
+$('prev').onclick=()=>{view.setMonth(view.getMonth()-1);renderCalendar()};
+$('next').onclick=()=>{view.setMonth(view.getMonth()+1);renderCalendar()};
+$('todayBtn').onclick=()=>{selected=iso(today);view=new Date(today.getFullYear(),today.getMonth(),1);renderAll()};
+$('addSubject').onclick=()=>{let name=$('newSubject').value.trim();if(!name)return;data.subjects.push({id:crypto.randomUUID(),name,exam:'',units:[]});$('newSubject').value='';save();renderAll()};
+$('newSubject').addEventListener('keydown',e=>{if(e.key==='Enter')$('addSubject').click()});
+$('saveDay').onclick=()=>{let entry=dayData(selected);entry.studied=[...document.querySelectorAll('#studyChecks input:checked')].map(i=>i.value);entry.exam=$('examTitle').value.trim();save();renderAll()};
+$('clearDay').onclick=()=>{delete data.days[selected];save();renderAll()};
+function minutes(t){let [h,m]=t.split(':').map(Number);return h*60+m}
+function makePlan(){
+ const daily=Number($('hours').value),br=Number($('breaks').value),wake=minutes($('wake').value),sleep=minutes($('sleep').value);
+ if(!daily||daily<1||daily>12){alert('하루 공부 가능 시간은 1~12시간으로 입력해 주세요.');return}
+ let available=(sleep-wake+1440)%1440;if(available===0)available=1440;
+ if(daily*60>available){alert('공부 가능 시간이 시작 시간부터 취침 시간까지의 시간보다 많아요. 시간을 조정해 주세요.');return}
+ const subjects=data.subjects.map(s=>({
+   id:s.id,name:s.name,exam:s.exam?parse(s.exam):null,
+   units:s.units.filter(u=>!u.done).map(u=>u.name)
+ })).filter(s=>s.units.length);
+ if(!subjects.length){$('planOutput').innerHTML='<div class="empty">남은 단원이 없습니다. 모든 진도가 완료됐어요!</div>';return}
+ const overdue=subjects.filter(s=>s.exam && s.exam<today);
+ const active=subjects.filter(s=>!s.exam || s.exam>=today);
+ const dailyMinutes=daily*60;
+ const maxDate=new Date(today);
+ active.forEach(s=>{if(s.exam && s.exam>maxDate)maxDate.setTime(s.exam.getTime())});
+ // 하루에 배정할 수 있는 단원 수를 실제 공부 시간과 휴식 간격으로 계산
+ const maxUnits=Math.max(1,Math.floor((dailyMinutes+br)/(120+br)));
+ const schedule=[];
+ let remaining=active.map(s=>({...s,queue:[...s.units]}));
+ const dayCount=Math.min(180,Math.max(1,Math.ceil((maxDate-today)/86400000)+1));
+ for(let day=0;day<dayCount;day++){
+   const date=new Date(today);date.setDate(today.getDate()+day);
+   const eligible=remaining.filter(s=>s.queue.length && (!s.exam || s.exam>=date));
+   const assigned=[];
+   while(assigned.length<maxUnits && eligible.length){
+     // 시험일까지 남은 기간 대비 미완료 단원 수가 많을수록 우선순위 상승
+     eligible.sort((a,b)=>{
+       const da=a.exam?Math.max(1,Math.round((a.exam-date)/86400000)+1):9999;
+       const db=b.exam?Math.max(1,Math.round((b.exam-date)/86400000)+1):9999;
+       const ra=a.queue.length/da, rb=b.queue.length/db;
+       return rb-ra || (a.exam?.getTime()??Infinity)-(b.exam?.getTime()??Infinity);
+     });
+     const chosen=eligible[0];
+     assigned.push({subject:chosen.name,unit:chosen.queue.shift(),exam:chosen.exam});
+     if(!chosen.queue.length)eligible.splice(eligible.indexOf(chosen),1);
+   }
+   if(assigned.length)schedule.push({date,items:assigned});
+ }
+ const left=remaining.reduce((sum,s)=>sum+s.queue.length,0);
+ let html='';
+ schedule.forEach(day=>{
+   const label=day.date.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+   const groups={};
+   day.items.forEach(it=>(groups[it.subject]??=[]).push(it.unit));
+   html+=`<div class="plan-day"><div class="plan-date">${label}</div>`;
+   Object.entries(groups).forEach(([subject,units])=>{
+     units.forEach(unit=>html+=`<div class="plan-item"><span>${esc(subject)} · ${esc(unit)}</span><span>2시간</span></div>`);
+   });
+   html+='</div>';
+ });
+ let notes='';
+ if(overdue.length)notes+=`<div class="notice">시험일이 지난 과목은 계획에서 제외했어요: ${overdue.map(s=>esc(s.name)).join(', ')}. 시험 날짜를 확인해 주세요.</div>`;
+ if(left){
+   const impossible=active.filter(s=>s.queue.length);
+   notes+=`<div class="notice">현재 설정한 하루 공부 시간으로는 모든 단원을 시험일까지 배치하기 어려워요. 남은 단원 ${left}개가 계획에 포함되지 않았습니다. ${impossible.map(s=>`${esc(s.name)} ${s.queue.length}개`).join(' · ')}. 하루 공부 시간을 늘리거나 진도량·시험일을 확인해 주세요.</div>`;
+ }
+ if(!html)html='<div class="empty">배치할 수 있는 단원이 없습니다. 시험일을 확인해 주세요.</div>';
+ $('planOutput').innerHTML=notes+html;
+}$('makePlan').onclick=makePlan;
+renderAll();
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body></html>
